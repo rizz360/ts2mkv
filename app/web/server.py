@@ -553,6 +553,8 @@ class _Handler(http.server.BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = http.server.HTTPServer(("0.0.0.0", PORT), _Handler)
+    # ThreadingHTTPServer so one slow/stalled client cannot block the
+    # dashboard and /api/status pollers (HA, homepage, browser tabs).
+    server = http.server.ThreadingHTTPServer(("0.0.0.0", PORT), _Handler)
     print(f"[dashboard] Listening on http://0.0.0.0:{PORT}", flush=True)
     server.serve_forever()
