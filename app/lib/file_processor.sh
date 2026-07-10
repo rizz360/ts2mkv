@@ -80,7 +80,11 @@ process_file() {
     local base_path="${relative_path%.ts}"
 
     declare -A video_info
-    get_video_info "$file" video_info
+    if ! get_video_info "$file" video_info; then
+        log_error "Failed to analyze $file - skipping"
+        echo "$file" >> "$LOG_DIR/error.log"
+        return 1
+    fi
 
     local suffix="TV.${video_info[res_label]}"
     local output_rel="${base_path}.${suffix}.mkv"
@@ -193,7 +197,9 @@ process_files_sequential() {
         if [ -z "$file" ]; then
             continue
         fi
-        process_file "$file"
+        # Never let one failed file abort the whole run: under `set -e` a bare
+        # nonzero return from process_file would terminate the container.
+        process_file "$file" || true
     done
 }
 

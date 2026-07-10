@@ -56,8 +56,10 @@ wait_for_new_files() {
             # Verify file still exists and process it
             if [[ -f "$new_file" ]]; then
                 log_info "Processing newly detected file: $new_file"
-                process_file "$new_file"
-                
+                # Keep monitoring even if this file fails: under `set -e` a bare
+                # nonzero return from process_file would terminate the container.
+                process_file "$new_file" || log_warn "Processing failed for $new_file"
+
                 local stats
                 stats=$(log_stats)
                 local done_count="${stats%:*}"
