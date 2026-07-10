@@ -58,7 +58,7 @@ Releases are automated with Release Please:
 
 1. Push commit(s) to `main`.
 2. The Release Please workflow updates or creates a release PR with changelog and version bump.
-3. Merge that release PR to create the `vX.Y.Z` tag and GitHub release.
+3. Merge that release PR to create the `ts-to-mkv-vX.Y.Z` tag and GitHub release (the component prefix comes from `release-please-config.json`; the workflows also accept legacy `v*` and `ts2mkv-v*` tags).
 4. The tag triggers the publish workflow, which builds and pushes the GHCR image.
 
 Avoid creating manual release tags unless there is an explicit emergency process.

@@ -16,6 +16,19 @@ The entrypoint loads module files from `/app/lib` and coordinates startup, confi
 - `file_processor.sh`: per-file processing flow and parallel worker management
 - `file_monitor.sh`: existing/new file discovery in watch/poll/once modes
 
+## Web Dashboard
+
+- `app/web/server.py`: threaded HTTP server started as a background process by the entrypoint after config load; listens on `WEB_PORT` (default 8080)
+
+The dashboard is read-only: it renders state exclusively from files in `LOG_DIR` and never talks to the shell processor directly. The contract between the two:
+
+- `queue.log` / `poll_queue.log`: newline-delimited absolute input paths (startup scan / poll scan)
+- `done.log` / `error.log`: newline-delimited absolute input paths, appended per result
+- `current_meta.<pid>.json`: one JSON object per active job (`file`, `started`, `duration_sec`), written by `process_file` keyed by `BASHPID` so parallel jobs do not collide
+- `ffmpeg_progress.<pid>.log`: ffmpeg `-progress` key/value output for the matching job
+
+`GET /` serves the HTML page, `GET /api/status` serves the JSON consumed by the page and by external pollers (Home Assistant, homepage widgets).
+
 ## Config and Paths
 
 - Config: compose `environment` block in `docker-compose.yml` (default)

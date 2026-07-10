@@ -46,7 +46,10 @@ docker compose logs -f ts2mkv
 ```
 
 Expected startup message pattern:
-- `YYYY-MM-DD HH:MM:SS INFO: Running in [mode] mode`
+- `[YYYY-MM-DD HH:MM:SS] [INFO] Running in [mode] mode`
+
+The web dashboard also logs its listen address on startup:
+- `[dashboard] Listening on http://0.0.0.0:8080`
 
 Optional ntfy-only startup notification (only when `NTFY_URL` is set):
 - `ts2mkv processor starting in [mode] mode...`

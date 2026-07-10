@@ -6,12 +6,22 @@ get_video_info() {
     local -n info_ref="$2"
 
     local json_data
-    json_data=$(ffprobe -v quiet -print_format json -show_format -show_streams "$file_path")
+    if ! json_data=$(ffprobe -v quiet -print_format json -show_format -show_streams "$file_path"); then
+        log_error "ffprobe failed to analyze $file_path"
+        return 1
+    fi
 
-    info_ref[height]=$(echo "$json_data" | jq -r '.streams[] | select(.codec_type=="video") | .height' | head -n1)
-    info_ref[scan_type]=$(echo "$json_data" | jq -r '.streams[] | select(.codec_type=="video") | .field_order // "progressive"' | head -n1)
-    info_ref[duration]=$(echo "$json_data" | jq -r '.format.duration | tonumber | floor')
+    # jq expressions must never exit nonzero: under `set -euo pipefail` a jq
+    # failure on malformed metadata would kill the whole processor.
+    info_ref[height]=$(echo "$json_data" | jq -r '[.streams[]? | select(.codec_type=="video")][0].height // empty')
+    info_ref[scan_type]=$(echo "$json_data" | jq -r '[.streams[]? | select(.codec_type=="video")][0].field_order // "progressive"')
+    info_ref[duration]=$(echo "$json_data" | jq -r '(.format.duration // "0") | (tonumber? // 0) | floor')
     info_ref[size_gb]=$(du -BG "$file_path" | cut -f1 | sed 's/G//')
+
+    if [[ -z "${info_ref[height]}" ]]; then
+        log_error "No video stream found in $file_path"
+        return 1
+    fi
 
     if [[ "${info_ref[scan_type]}" =~ (tt|bb|tb|bt) ]]; then
         info_ref[res_label]="${info_ref[height]}i"
@@ -20,8 +30,8 @@ get_video_info() {
     fi
 
     # Get additional stream info for optimization decisions
-    info_ref[video_bitrate]=$(echo "$json_data" | jq -r '.streams[] | select(.codec_type=="video") | .bit_rate // "0"')
-    info_ref[video_codec]=$(echo "$json_data" | jq -r '.streams[] | select(.codec_type=="video") | .codec_name // "unknown"')
+    info_ref[video_bitrate]=$(echo "$json_data" | jq -r '[.streams[]? | select(.codec_type=="video")][0].bit_rate // "0"')
+    info_ref[video_codec]=$(echo "$json_data" | jq -r '[.streams[]? | select(.codec_type=="video")][0].codec_name // "unknown"')
 }
 
 should_encode() {
@@ -62,8 +72,13 @@ validate_output() {
     local resolution="$4"
 
     local encoded_duration
-    encoded_duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$encoded" | awk '{printf "%.0f\n", $1}')
-    
+    encoded_duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$encoded" 2>/dev/null | awk '{printf "%.0f\n", $1}' || true)
+
+    if [[ -z "$encoded_duration" ]]; then
+        log_warn "Unable to read duration of encoded output $encoded - treating as invalid"
+        return 1
+    fi
+
     # More lenient duration check for SD content (often has timing irregularities)
     local tolerance=80
     local res_num="${resolution%[pi]}"

@@ -67,7 +67,7 @@ A lightweight status dashboard is built into the container and starts automatica
 - **Completed** — last 30 finished files
 - **Errors** — any failed files
 
-The default compose setup publishes dashboard port `8080` on the host as `8080`.
+The default compose setup publishes dashboard port `8080` on the host as `8080`. The container-side listen port can be changed with the `WEB_PORT` environment variable (remember to adjust the compose `ports` mapping accordingly).
 
 ### JSON API
 
@@ -135,12 +135,12 @@ sensor:
 
 ## Logs
 
-Runtime logs are written under [app/logs](app/logs):
-- `queue.log`
-- `current.log`
-- `done.log`
-- `error.log`
-- `ffmpeg_*.log`
+Runtime logs are written inside the container at `/app/logs` (configurable via `LOG_DIR`). Inspect them with `docker compose exec ts2mkv ls /app/logs` or via the web dashboard:
+- `queue.log` — files found by the startup scan (`poll_queue.log` in poll mode)
+- `done.log` — successfully processed files
+- `error.log` — failed files
+- `ffmpeg_encode_*.log` — full ffmpeg output per encode
+- `ffmpeg_progress.<pid>.log` / `current_meta.<pid>.json` — live per-job progress data consumed by the dashboard
 
 ## Additional Docs
 
