@@ -55,7 +55,7 @@ remux_file() {
     local progress_log="${3:-${LOG_DIR}/ffmpeg_progress.log}"
 
     log_info "Attempting to remux $input_file"
-    if ffmpeg -hide_banner -loglevel error -progress "$progress_log" -stats_period 2 \
+    if ffmpeg -nostdin -hide_banner -loglevel error -progress "$progress_log" -stats_period 2 \
         -fflags +genpts -i "$input_file" -map 0 -c copy \
         -bsf:v "$_BSF_NORMALIZE_TS" \
         -bsf:a "$_BSF_NORMALIZE_TS" \
@@ -64,7 +64,7 @@ remux_file() {
     elif [[ "$REMUX_FALLBACK_NO_SUBTITLES" == "true" ]]; then
         log_warn "Remux failed. Retrying without subtitles..."
         rm -f "$output_path"
-        if ffmpeg -y -hide_banner -loglevel error -progress "$progress_log" -stats_period 2 \
+        if ffmpeg -y -nostdin -hide_banner -loglevel error -progress "$progress_log" -stats_period 2 \
             -fflags +genpts -i "$input_file" -map 0 -sn -c copy \
             -bsf:v "$_BSF_NORMALIZE_TS" \
             -bsf:a "$_BSF_NORMALIZE_TS" \
@@ -120,7 +120,9 @@ try_encode_with_codec() {
     get_encoding_params "$resolution" encoding_params
 
     # Build ffmpeg command based on codec type
-    local ffmpeg_cmd=(ffmpeg -hide_banner -loglevel error)
+    # -nostdin: ffmpeg must never read stdin - in poll mode process_file runs
+    # inside a `while read` loop and would otherwise swallow the queue file.
+    local ffmpeg_cmd=(ffmpeg -nostdin -hide_banner -loglevel error)
 
     # Live progress output for the web dashboard
     ffmpeg_cmd+=(-progress "$progress_log" -stats_period 2)
