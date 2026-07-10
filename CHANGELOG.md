@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.4.5](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.4.4...ts-to-mkv-v2.4.5) (2026-07-10)
+
+
+### Bug Fixes
+
+* **encoding:** pass -nostdin to all ffmpeg invocations ([89dd978](https://github.com/rizz360/ts2mkv/commit/89dd9780349d898f7b750578abd58aa15a4de733))
+* **processor:** prevent single-file failures from crashing the container ([0af3cb2](https://github.com/rizz360/ts2mkv/commit/0af3cb21063285e66d258b63b0823ce795165d67))
+* **web:** serve dashboard with ThreadingHTTPServer ([e218488](https://github.com/rizz360/ts2mkv/commit/e218488d40454aa122b7ffd9fb35af5158b51217))
+
 ## [2.4.4](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.4.3...ts-to-mkv-v2.4.4) (2026-05-18)
 
 
