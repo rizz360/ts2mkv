@@ -13,6 +13,13 @@ create_temp_job_dir() {
     mktemp -d -- "${TEMP_DIR%/}/${safe_base}.XXXXXX"
 }
 
+# A recording is a series episode when its path (lowercased) matches
+# SERIES_PATTERN — an episode tag like S01E02 or a Season/Staffel directory.
+is_series_path() {
+    local relative_path_lower="${1,,}"
+    [[ "$relative_path_lower" =~ $SERIES_PATTERN ]]
+}
+
 get_duration_seconds() {
     local media_file="$1"
     ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$media_file" \
@@ -88,6 +95,9 @@ process_file() {
 
     local suffix="TV.${video_info[res_label]}"
     local output_rel="${base_path}.${suffix}.mkv"
+    if [[ "$FLATTEN_NON_SERIES" == "true" ]] && ! is_series_path "$relative_path"; then
+        output_rel="$(basename "$base_path").${suffix}.mkv"
+    fi
     local output_path="${OUTPUT_DIR}/${output_rel}"
 
     if [[ -f "$output_path" ]]; then

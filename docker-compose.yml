@@ -42,6 +42,15 @@ services:
       # Retry remux without subtitles if failed
       REMUX_FALLBACK_NO_SUBTITLES: "true"
 
+      # --- Output Layout ---
+      # Series recordings (path matches SERIES_PATTERN) keep their folder
+      # structure; movies are written flat into the output root.
+      # Set to "false" to mirror the input structure for everything.
+      FLATTEN_NON_SERIES: "true"
+      # Case-insensitive ERE used to detect series recordings.
+      # Default: SxxExx episode tag or a Season/Staffel directory.
+      # SERIES_PATTERN: ""
+
       # --- Processing Mode ---
       # 'watch' for real-time file monitoring, 'poll' for periodic scanning, 'once' for single run
       MONITOR_MODE: watch
