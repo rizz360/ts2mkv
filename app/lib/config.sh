@@ -41,6 +41,16 @@ load_config() {
     # Processing logic settings
     FORCE_ENCODE_SD="${FORCE_ENCODE_SD:-true}"
 
+    # Output layout settings
+    # Series recordings keep their input folder structure; everything else
+    # (movies) is written flat into the output root when this is true.
+    FLATTEN_NON_SERIES="${FLATTEN_NON_SERIES:-true}"
+    # ERE matched (case-insensitively, against the lowercased relative path)
+    # to decide whether a recording belongs to a series.
+    if [[ -z "${SERIES_PATTERN:-}" ]]; then
+        SERIES_PATTERN='s[0-9]{1,2}e[0-9]{1,3}|season[ ._-]?[0-9]{1,2}|staffel[ ._-]?[0-9]{1,2}'
+    fi
+
     # Resolution-specific bitrates
     BITRATE_1080="${BITRATE_1080:-4000k}"
     BITRATE_720="${BITRATE_720:-2500k}"
@@ -102,6 +112,7 @@ print_config_summary() {
         log_info "- Max concurrent jobs: $MAX_CONCURRENT_JOBS"
     fi
     log_info "- Force encode SD content: $FORCE_ENCODE_SD"
+    log_info "- Flatten non-series output: $FLATTEN_NON_SERIES"
     log_info "- Use CRF mode: $USE_CRF"
     log_info "- Skip already HEVC: $SKIP_ALREADY_HEVC"
     log_info "- Delete processed sources: $DELETE_TS"

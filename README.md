@@ -5,7 +5,7 @@
 [![License: EUPL](https://img.shields.io/badge/License-EUPL-blue.svg)](LICENSE)
 [![Container](https://img.shields.io/badge/Container-ghcr.io-blue?logo=docker)](https://github.com/rizz360/ts2mkv/pkgs/container/ts2mkv)
 
-A Docker-based tool that converts `.ts` recordings to `.mkv`, preserves folder structure, and applies smart remux/encode decisions with hardware fallback.
+A Docker-based tool that converts `.ts` recordings to `.mkv`, preserves folder structure for series, and applies smart remux/encode decisions with hardware fallback.
 
 ## Requirements
 
@@ -49,6 +49,11 @@ Important knobs:
 - `USE_CRF`, `CRF_*`, `BITRATE_*`
 - `ENABLE_PARALLEL_PROCESSING`, `MAX_CONCURRENT_JOBS`
 - `FORCE_ENCODE_SD`, `SKIP_ALREADY_HEVC`
+- `FLATTEN_NON_SERIES`, `SERIES_PATTERN`
+
+Output layout:
+- Series recordings keep their input folder structure in the output. A recording counts as a series when its relative path matches `SERIES_PATTERN` (default: an `SxxExx` episode tag or a `Season`/`Staffel` directory, matched case-insensitively).
+- All other recordings (movies) are written flat into the output root. Set `FLATTEN_NON_SERIES=false` to mirror the input structure for everything, as before.
 
 Filename support note:
 - Paths with spaces, quotes, and UTF-8 characters are supported.
