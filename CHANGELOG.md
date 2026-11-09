@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.6.1](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.6.0...ts-to-mkv-v2.6.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **docker:** drop unimplemented PUID/PGID and unused sudo ([c17b0c1](https://github.com/rizz360/ts2mkv/commit/c17b0c1dfb98cd88e9262e4e9896c17ea7279b68))
+* **docker:** drop unimplemented PUID/PGID and unused sudo ([62edcb6](https://github.com/rizz360/ts2mkv/commit/62edcb6219c0084683138e77d289e793b8552467)), closes [#33](https://github.com/rizz360/ts2mkv/issues/33)
+* **encoding:** drop data streams when writing MKV ([a951f8a](https://github.com/rizz360/ts2mkv/commit/a951f8aab34522802672b3702049a29244bcda23))
+* **encoding:** drop data streams when writing MKV ([2649201](https://github.com/rizz360/ts2mkv/commit/264920108672fcd1c6f403c0c2a8c11e2f9fe33b)), closes [#38](https://github.com/rizz360/ts2mkv/issues/38)
+
 ## [2.6.0](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.5.0...ts-to-mkv-v2.6.0) (2026-11-09)
 
 
