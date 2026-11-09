@@ -86,4 +86,6 @@ docker compose exec ts2mkv bash -n /app/entrypoint.sh
 docker compose exec ts2mkv bash -c 'source /app/lib/config.sh && load_config && echo "$MONITOR_MODE"'
 ```
 
-If your storage backend does not propagate inotify events reliably, set `MONITOR_MODE=poll` in [docker-compose.yml](../docker-compose.yml).
+Watch mode rescans the input every `WATCH_RESCAN_SEC` (default 60 s) in addition to reacting to inotify events, so files are still found if your storage backend (e.g. an NFS/SMB mount) drops events. `MONITOR_MODE=poll` remains available if you prefer pure polling.
+
+Recordings are only processed after they have gone `MIN_FILE_AGE_SEC` (default 300 s) without being modified; the log shows `Waiting for … (still recording?)` until then. If files appear to never get processed, check that the clocks of the recording host and the ts2mkv host are in sync — a modification time in the future keeps a file deferred.
