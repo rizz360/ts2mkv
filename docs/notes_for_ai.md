@@ -22,6 +22,7 @@ This avoids bugs where valid filenames become corrupted or unfindable.
 
 ## ffmpeg invocations
 
+- Always pass `-dn` alongside `-map 0`. Broadcast recordings can carry data streams (EPG, SCTE-35, …) that Matroska cannot store; mapping one makes ffmpeg fail to write the output.
 - Always pass `-nostdin`. In poll mode, `process_file` runs inside a `while read … done < queue_file` loop; without `-nostdin`, ffmpeg inherits the queue file as stdin and consumes queued entries.
 - Live progress is emitted with `-progress "$progress_log" -stats_period 2`; the dashboard depends on it (see below).
 
