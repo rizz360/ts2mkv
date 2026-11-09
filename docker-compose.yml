@@ -72,6 +72,10 @@ services:
       AUDIO_CODEC: copy
       # Always encode SD content (576p/i, 480p/i) for better compression
       FORCE_ENCODE_SD: "true"
+      # Deinterlace interlaced sources (576i/480i/1080i) when encoding
+      DEINTERLACE: "true"
+      # send_frame keeps 25 fps; send_field doubles to 50 fps (smoother, larger)
+      DEINTERLACE_MODE: send_frame
 
       # --- Resolution-specific Bitrates ---
       # Traditional bitrate mode
