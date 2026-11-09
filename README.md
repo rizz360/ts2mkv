@@ -49,6 +49,7 @@ Important knobs:
 - `USE_CRF`, `CRF_*`, `BITRATE_*`
 - `ENABLE_PARALLEL_PROCESSING`, `MAX_CONCURRENT_JOBS`
 - `FORCE_ENCODE_SD`, `SKIP_ALREADY_HEVC`
+- `MIN_FRAME_RATIO_PCT` (encodes with fewer video frames than this share of duration × fps are rejected; default `90`)
 - `FLATTEN_NON_SERIES`, `SERIES_PATTERN`
 
 Output layout:

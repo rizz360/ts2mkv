@@ -65,6 +65,34 @@ should_encode() {
     return 1
 }
 
+# Minimum share of expected video frames (duration x fps) an encode must
+# contain to be considered valid.
+MIN_FRAME_RATIO_PCT="${MIN_FRAME_RATIO_PCT:-90}"
+
+check_frame_density() {
+    local encoded="$1"
+    local duration="$2"
+
+    local probe fps_expr frames
+    probe=$(ffprobe -v error -select_streams v:0 -count_packets \
+        -show_entries stream=avg_frame_rate,nb_read_packets \
+        -of default=noprint_wrappers=1 "$encoded" 2>/dev/null || true)
+    fps_expr=$(sed -n 's/^avg_frame_rate=//p' <<< "$probe")
+    frames=$(sed -n 's/^nb_read_packets=//p' <<< "$probe")
+
+    if [[ ! "$frames" =~ ^[0-9]+$ ]] || [[ ! "$fps_expr" =~ ^[0-9]+/[1-9][0-9]*$ ]] || [[ ! "$duration" =~ ^[0-9]+$ ]] || (( duration == 0 )); then
+        log_warn "Unable to determine frame count/rate of $encoded - skipping frame-count check"
+        return 0
+    fi
+
+    local expected=$(( duration * ${fps_expr%/*} / ${fps_expr#*/} ))
+    if (( expected > 0 && frames * 100 < expected * MIN_FRAME_RATIO_PCT )); then
+        log_warn "Encoded output has only $frames of ~$expected expected video frames ($(( frames * 100 / expected ))%) - decoder likely dropped frames"
+        return 1
+    fi
+    return 0
+}
+
 validate_output() {
     local original="$1"
     local encoded="$2"
@@ -90,7 +118,15 @@ validate_output() {
         log_warn "Encoded duration ($encoded_duration) is much shorter than original ($original_duration)!"
         return 1
     fi
-    
+
+    # Frame-count check: a decoder that silently drops frames still yields a
+    # full-length file (timestamps span the whole runtime), so duration alone
+    # cannot detect a stuttering "slideshow" encode. Compare the number of
+    # video frames actually present against duration x frame rate.
+    if ! check_frame_density "$encoded" "$encoded_duration"; then
+        return 1
+    fi
+
     # Ensure some compression occurred (but allow for edge cases)
     local encoded_size original_size
     encoded_size=$(stat -f%z "$encoded" 2>/dev/null || stat -c%s "$encoded")
