@@ -136,8 +136,19 @@ try_encode_with_codec() {
     # and uploads them itself.
     ffmpeg_cmd+=(-fflags +genpts -i "$input_file" -map 0 -sn)
 
+    local video_filters=()
+    # Broadcast SD (576i/480i) and 1080i are interlaced. Encoding them as
+    # progressive without deinterlacing leaves combing on every motion.
+    # deint=interlaced only touches frames flagged interlaced, so progressive
+    # segments inside a mixed broadcast pass through untouched.
+    if [[ "$DEINTERLACE" == "true" ]] && [[ "$resolution" == *i ]]; then
+        video_filters+=("bwdif=mode=${DEINTERLACE_MODE}:parity=auto:deint=interlaced")
+    fi
     if [[ "$codec" == "hevc_qsv" ]]; then
-        ffmpeg_cmd+=(-vf "format=nv12")
+        video_filters+=("format=nv12")
+    fi
+    if (( ${#video_filters[@]} > 0 )); then
+        ffmpeg_cmd+=(-vf "$(IFS=,; echo "${video_filters[*]}")")
     fi
 
     ffmpeg_cmd+=(-c:v "$codec" -preset "${encoding_params[preset]}")

@@ -40,6 +40,11 @@ load_config() {
 
     # Processing logic settings
     FORCE_ENCODE_SD="${FORCE_ENCODE_SD:-true}"
+    # Deinterlace interlaced sources (576i/480i/1080i) when encoding.
+    DEINTERLACE="${DEINTERLACE:-true}"
+    # bwdif mode: send_frame keeps the source frame rate (25 fps for PAL),
+    # send_field doubles it (50 fps) for smoother motion at a larger size.
+    DEINTERLACE_MODE="${DEINTERLACE_MODE:-send_frame}"
 
     # Output layout settings
     # Series recordings keep their input folder structure; everything else
@@ -112,6 +117,7 @@ print_config_summary() {
         log_info "- Max concurrent jobs: $MAX_CONCURRENT_JOBS"
     fi
     log_info "- Force encode SD content: $FORCE_ENCODE_SD"
+    log_info "- Deinterlace interlaced sources: $DEINTERLACE ($DEINTERLACE_MODE)"
     log_info "- Flatten non-series output: $FLATTEN_NON_SERIES"
     log_info "- Use CRF mode: $USE_CRF"
     log_info "- Skip already HEVC: $SKIP_ALREADY_HEVC"
