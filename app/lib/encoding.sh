@@ -127,12 +127,20 @@ try_encode_with_codec() {
     # Live progress output for the web dashboard
     ffmpeg_cmd+=(-progress "$progress_log" -stats_period 2)
 
-    # Add hardware acceleration for QSV
+    # QSV: software decode, hardware encode. Do NOT add `-hwaccel qsv` here:
+    # without a matching hwaccel_output_format the QSV decoder exhausts its
+    # surface pool ("mpeg2_qsv get_buffer() failed / Cannot allocate memory")
+    # and silently drops most frames, producing a stuttering, artifact-ridden
+    # slideshow while ffmpeg still exits 0. Decoding broadcast SD/HD in
+    # software is cheap; hevc_qsv accepts system-memory NV12 frames directly
+    # and uploads them itself.
+    ffmpeg_cmd+=(-fflags +genpts -i "$input_file" -map 0 -sn)
+
     if [[ "$codec" == "hevc_qsv" ]]; then
-        ffmpeg_cmd+=(-hwaccel qsv -init_hw_device qsv=hw:/dev/dri/renderD128 -filter_hw_device hw)
+        ffmpeg_cmd+=(-vf "format=nv12")
     fi
-    
-    ffmpeg_cmd+=(-fflags +genpts -i "$input_file" -map 0 -sn -c:v "$codec" -preset "${encoding_params[preset]}")
+
+    ffmpeg_cmd+=(-c:v "$codec" -preset "${encoding_params[preset]}")
 
     # Add quality parameters (either CRF or bitrate)
     read -ra quality_params <<< "${encoding_params[quality]}"
