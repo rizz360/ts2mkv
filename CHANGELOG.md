@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.6.2](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.6.1...ts-to-mkv-v2.6.2) (2026-11-09)
+
+
+### Bug Fixes
+
+* **logging:** keep log_stats output to the counts it returns ([d05b1c7](https://github.com/rizz360/ts2mkv/commit/d05b1c72d1f1b9fa2a4d3543622a8756081059d1))
+* **monitor:** never process recordings in progress; don't miss files in watch mode ([1165b64](https://github.com/rizz360/ts2mkv/commit/1165b642836c63c0abf2a7b428157f8ba36975fb))
+* **monitor:** never process recordings in progress; don't miss files in watch mode ([0863c41](https://github.com/rizz360/ts2mkv/commit/0863c415ae7538fdb5886ce26768c089f459d6af)), closes [#32](https://github.com/rizz360/ts2mkv/issues/32)
+
 ## [2.6.1](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.6.0...ts-to-mkv-v2.6.1) (2026-11-09)
 
 
