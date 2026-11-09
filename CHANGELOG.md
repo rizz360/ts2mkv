@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.0](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.4.5...ts-to-mkv-v2.5.0) (2026-07-10)
+
+
+### Features
+
+* **processor:** write non-series recordings flat into the output root ([58165c1](https://github.com/rizz360/ts2mkv/commit/58165c1c442f2a8b2bba0c3384bcde2b15cf967f))
+* **processor:** write non-series recordings flat into the output root ([fa3f0bf](https://github.com/rizz360/ts2mkv/commit/fa3f0bf5111c7d8d0e381dedabe721fed08695a1))
+
 ## [2.4.5](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.4.4...ts-to-mkv-v2.4.5) (2026-07-10)
 
 
