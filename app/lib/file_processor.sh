@@ -20,6 +20,34 @@ is_series_path() {
     [[ "$relative_path_lower" =~ $SERIES_PATTERN ]]
 }
 
+# process_file exit status for a recording that is not finished yet. Callers
+# must treat it as neither success (don't mark it handled) nor failure (it is
+# not logged to error.log) and simply try again on a later scan.
+PROCESS_DEFERRED=2
+
+# Last-modification time of a file in epoch seconds (GNU stat, BSD fallback).
+file_mtime() {
+    local mtime
+    mtime="$(stat -c %Y -- "$1" 2>/dev/null || stat -f %m -- "$1" 2>/dev/null)" || return 1
+    [[ "$mtime" =~ ^[0-9]+$ ]] || return 1
+    echo "$mtime"
+}
+
+# A recording counts as finished once it has gone MIN_FILE_AGE_SEC without
+# being modified. tvheadend writes continuously while recording, so a recent
+# mtime means the file is still growing. Processing it then would convert a
+# partial recording that still passes validation (the source duration is
+# measured at probe time) and, with DELETE_TS=true, delete the recording
+# while it is being written.
+recording_is_settled() {
+    local min_age="${MIN_FILE_AGE_SEC:-300}" mtime
+    if (( min_age <= 0 )); then
+        return 0
+    fi
+    mtime="$(file_mtime "$1")" || return 1
+    (( $(date +%s) - mtime >= min_age ))
+}
+
 get_duration_seconds() {
     local media_file="$1"
     ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$media_file" \
@@ -79,6 +107,17 @@ process_file() {
     if [ ! -e "$file" ]; then
         log_warn "File no longer exists, skipping: $file"
         return
+    fi
+
+    # Every monitor mode goes through here, so this one check protects the
+    # startup scan, watch and poll mode alike.
+    if ! recording_is_settled "$file"; then
+        local mtime age="?"
+        if mtime="$(file_mtime "$file")"; then
+            age=$(( $(date +%s) - mtime ))
+        fi
+        log_info "Deferring $file: last modified ${age}s ago, waiting until it is unchanged for ${MIN_FILE_AGE_SEC:-300}s (still recording?)"
+        return "$PROCESS_DEFERRED"
     fi
 
     log_info "===================="

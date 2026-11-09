@@ -30,12 +30,15 @@ init_logging() {
     >"$LOG_DIR/current.log"
 }
 
-# Log processing statistics
+# Print "<done>:<failed>" counts. Callers capture this with $(...), so stdout
+# must carry nothing else.
 log_stats() {
-    local done_count error_count
-    done_count=$(wc -l < "$LOG_DIR/done.log" 2>/dev/null || echo 0)
-    error_count=$(wc -l < "$LOG_DIR/error.log" 2>/dev/null || echo 0)
-    
-    log_info "Processing stats: $done_count successful, $error_count failed"
-    echo "$done_count:$error_count"
+    local done_count=0 error_count=0
+    if [[ -f "$LOG_DIR/done.log" ]]; then
+        done_count=$(wc -l < "$LOG_DIR/done.log")
+    fi
+    if [[ -f "$LOG_DIR/error.log" ]]; then
+        error_count=$(wc -l < "$LOG_DIR/error.log")
+    fi
+    echo "$(( done_count )):$(( error_count ))"
 }

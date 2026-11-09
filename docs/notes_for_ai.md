@@ -20,6 +20,10 @@ This avoids bugs where valid filenames become corrupted or unfindable.
 3. **Handle ffprobe failure explicitly** (`if ! json=$(ffprobe …); then return 1; fi`). Corrupt or still-recording `.ts` files make ffprobe fail; that must mean "log to error.log and skip", never "crash".
 4. **Guard arithmetic against empty variables.** `(( empty_var < x ))` is an arithmetic error; inside an `if` it silently evaluates false, which can invert the intended safety check. Test for emptiness first.
 
+## Recordings in progress
+
+`process_file` returns `PROCESS_DEFERRED` (2) for a `.ts` modified less than `MIN_FILE_AGE_SEC` ago. That status is neither success nor failure: don't write it to done/error logs, don't mark the file handled, just retry on a later scan. Never bypass this guard — a still-recording file passes validation (its duration is measured at probe time) and `DELETE_TS` would delete the live recording. Watch mode must not react to inotify `create` for the same reason.
+
 ## ffmpeg invocations
 
 - Always pass `-dn` alongside `-map 0`. Broadcast recordings can carry data streams (EPG, SCTE-35, …) that Matroska cannot store; mapping one makes ffmpeg fail to write the output.

@@ -14,7 +14,7 @@ The entrypoint loads module files from `/app/lib` and coordinates startup, confi
 - `video_analysis.sh`: ffprobe metadata extraction and decision support
 - `encoding.sh`: remux/encode execution and codec fallback
 - `file_processor.sh`: per-file processing flow and parallel worker management
-- `file_monitor.sh`: existing/new file discovery in watch/poll/once modes
+- `file_monitor.sh`: existing/new file discovery in watch/poll/once modes. Watch and poll share `scan_input_for_new_files`; watch mode runs a long-lived `inotifywait -m` whose events only trigger a rescan, plus a periodic rescan as a safety net
 
 ## Web Dashboard
 
@@ -22,7 +22,7 @@ The entrypoint loads module files from `/app/lib` and coordinates startup, confi
 
 The dashboard is read-only: it renders state exclusively from files in `LOG_DIR` and never talks to the shell processor directly. The contract between the two:
 
-- `queue.log` / `poll_queue.log`: newline-delimited absolute input paths (startup scan / poll scan)
+- `queue.log` / `poll_queue.log`: newline-delimited absolute input paths (startup scan / latest watch or poll rescan)
 - `done.log` / `error.log`: newline-delimited absolute input paths, appended per result
 - `current_meta.<pid>.json`: one JSON object per active job (`file`, `started`, `duration_sec`), written by `process_file` keyed by `BASHPID` so parallel jobs do not collide
 - `ffmpeg_progress.<pid>.log`: ffmpeg `-progress` key/value output for the matching job

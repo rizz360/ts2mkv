@@ -33,6 +33,13 @@ load_config() {
     # Processing mode settings
     MONITOR_MODE="${MONITOR_MODE:-watch}"
     POLL_INTERVAL="${POLL_INTERVAL:-300}"
+    # Watch mode rescans INPUT_DIR this often even without inotify events, so
+    # deferred recordings and events missed on network mounts are picked up.
+    WATCH_RESCAN_SEC="${WATCH_RESCAN_SEC:-60}"
+    # A .ts is only processed once it has gone this long without being
+    # modified; younger files are treated as still recording and retried later.
+    # 0 disables the check.
+    MIN_FILE_AGE_SEC="${MIN_FILE_AGE_SEC:-300}"
 
     # Parallel processing settings
     ENABLE_PARALLEL_PROCESSING="${ENABLE_PARALLEL_PROCESSING:-false}"
@@ -101,6 +108,18 @@ validate_config() {
             ;;
     esac
 
+    local name
+    for name in MIN_FILE_AGE_SEC WATCH_RESCAN_SEC POLL_INTERVAL; do
+        if [[ ! "${!name}" =~ ^[0-9]+$ ]]; then
+            log_error "Invalid $name: ${!name}. Must be a whole number of seconds"
+            exit 1
+        fi
+    done
+    if (( WATCH_RESCAN_SEC < 1 )); then
+        log_error "Invalid WATCH_RESCAN_SEC: $WATCH_RESCAN_SEC. Must be at least 1"
+        exit 1
+    fi
+
     # Check dependencies based on monitor mode
     if [[ "$MONITOR_MODE" == "watch" ]] && ! command -v inotifywait &> /dev/null; then
         log_error "inotifywait not found. Please install inotify-tools package or use MONITOR_MODE=poll"
@@ -112,6 +131,7 @@ print_config_summary() {
     log_info "Configuration summary:"
     log_info "- Primary video codec: $VIDEO_CODEC"
     log_info "- Fallback video codec: $FALLBACK_CODEC"
+    log_info "- Minimum file age before processing (sec): $MIN_FILE_AGE_SEC"
     log_info "- Parallel processing: $ENABLE_PARALLEL_PROCESSING"
     if [[ "$ENABLE_PARALLEL_PROCESSING" == "true" ]]; then
         log_info "- Max concurrent jobs: $MAX_CONCURRENT_JOBS"

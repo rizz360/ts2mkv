@@ -56,6 +56,10 @@ services:
       MONITOR_MODE: watch
       # Seconds between scans when using poll mode (5 minutes default)
       POLL_INTERVAL: "300"
+      # Watch mode also rescans the input this often (catches missed inotify events)
+      WATCH_RESCAN_SEC: "60"
+      # Only process a .ts once it has been unchanged this long (skips recordings in progress; 0 disables)
+      MIN_FILE_AGE_SEC: "300"
 
       # --- Processing Settings ---
       # Enable parallel processing (true/false)

@@ -44,6 +44,8 @@ Optional: mount and set `TS_TO_MKV_CONFIG` (or `CONFIG_FILE`) if you still want 
 
 Important knobs:
 - `MONITOR_MODE` (`watch`, `poll`, `once`)
+- `MIN_FILE_AGE_SEC` (a `.ts` is only processed after going this many seconds without being modified, so recordings still in progress are never converted or deleted; default `300`, `0` disables)
+- `WATCH_RESCAN_SEC` (watch mode also rescans the input this often, catching deferred recordings and missed inotify events; default `60`)
 - `DELETE_TS`, `DELETE_SKIPPED_TS`, `DELETE_SKIPPED_VERIFY_DURATION`, `DELETE_SKIPPED_DURATION_TOLERANCE_PCT`, `DELETE_SKIPPED_DURATION_TOLERANCE_SEC`
 - `VIDEO_CODEC` / `FALLBACK_CODEC`
 - `USE_CRF`, `CRF_*`, `BITRATE_*`
@@ -143,7 +145,7 @@ sensor:
 ## Logs
 
 Runtime logs are written inside the container at `/app/logs` (configurable via `LOG_DIR`). Inspect them with `docker compose exec ts2mkv ls /app/logs` or via the web dashboard:
-- `queue.log` — files found by the startup scan (`poll_queue.log` in poll mode)
+- `queue.log` — files found by the startup scan (`poll_queue.log` — files found by the latest watch/poll rescan)
 - `done.log` — successfully processed files
 - `error.log` — failed files
 - `ffmpeg_encode_*.log` — full ffmpeg output per encode
