@@ -18,6 +18,10 @@ volumes:
 Use the compose `environment` block as the primary runtime config source.
 All supported variables with defaults are listed directly in `docker-compose.yml`.
 
+## Permissions
+
+The container runs as **root**: files written to `/output` are owned by `root:root`, and source deletion (`DELETE_TS`) runs with root privileges. `PUID`/`PGID` (LinuxServer.io convention) are **not** supported. If you need different ownership, adjust it on the host (e.g. a periodic `chown`, or NAS share permissions).
+
 ## Start
 
 ```bash

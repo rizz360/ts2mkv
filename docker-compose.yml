@@ -14,9 +14,9 @@ services:
       - "8080:8080"    # web dashboard
     environment:
       # --- Container Runtime ---
+      # The container runs as root, so output files are owned by root.
+      # PUID/PGID are not supported.
       TZ: Europe/Luxembourg
-      PUID: 1000
-      PGID: 1000
 
       # --- Web Dashboard ---
       # Dashboard listens on port 8080 and is exposed as 8080 on the host.
