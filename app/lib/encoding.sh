@@ -56,7 +56,7 @@ remux_file() {
 
     log_info "Attempting to remux $input_file"
     if ffmpeg -nostdin -hide_banner -loglevel error -progress "$progress_log" -stats_period 2 \
-        -fflags +genpts -i "$input_file" -map 0 -c copy \
+        -fflags +genpts -i "$input_file" -map 0 -dn -c copy \
         -bsf:v "$_BSF_NORMALIZE_TS" \
         -bsf:a "$_BSF_NORMALIZE_TS" \
         "$output_path"; then
@@ -65,7 +65,7 @@ remux_file() {
         log_warn "Remux failed. Retrying without subtitles..."
         rm -f "$output_path"
         if ffmpeg -y -nostdin -hide_banner -loglevel error -progress "$progress_log" -stats_period 2 \
-            -fflags +genpts -i "$input_file" -map 0 -sn -c copy \
+            -fflags +genpts -i "$input_file" -map 0 -sn -dn -c copy \
             -bsf:v "$_BSF_NORMALIZE_TS" \
             -bsf:a "$_BSF_NORMALIZE_TS" \
             "$output_path"; then
@@ -134,7 +134,7 @@ try_encode_with_codec() {
     # slideshow while ffmpeg still exits 0. Decoding broadcast SD/HD in
     # software is cheap; hevc_qsv accepts system-memory NV12 frames directly
     # and uploads them itself.
-    ffmpeg_cmd+=(-fflags +genpts -i "$input_file" -map 0 -sn)
+    ffmpeg_cmd+=(-fflags +genpts -i "$input_file" -map 0 -sn -dn)
 
     local video_filters=()
     # Broadcast SD (576i/480i) and 1080i are interlaced. Encoding them as
