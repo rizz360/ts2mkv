@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.6.0](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.5.0...ts-to-mkv-v2.6.0) (2026-11-09)
+
+
+### Features
+
+* **encoding:** deinterlace interlaced sources ([2a177ca](https://github.com/rizz360/ts2mkv/commit/2a177cae444c2c6dfca4a2c9b8f4d17f280a897f))
+
+
+### Bug Fixes
+
+* **encoding:** decode in software for QSV encodes ([14a4eac](https://github.com/rizz360/ts2mkv/commit/14a4eac0d3af8a0498e0573043a8ea347d788049))
+* QSV encodes drop ~75% of frames; add frame-count validation and deinterlacing ([474bb97](https://github.com/rizz360/ts2mkv/commit/474bb975199bff1a0e508a605bd50f61943699ac))
+* **validation:** reject encodes with dropped video frames ([3819951](https://github.com/rizz360/ts2mkv/commit/381995170eba85bffeb862ce4286ce3ecb8bf618))
+
 ## [2.5.0](https://github.com/rizz360/ts2mkv/compare/ts-to-mkv-v2.4.5...ts-to-mkv-v2.5.0) (2026-07-10)
 
 
